@@ -45,22 +45,25 @@ const showTodos = (todos, inputValue) => {
 
   manipuLateTodoClasses(todoList, 'd-none', 'd-flex')
 }
-
-formAddTodo.addEventListener('submit', event => {
+const addNewTodos = event => {
   event.preventDefault()
   const inputValue = event.target.add.value.trim()
 
   addTodo(inputValue)
-})
-todosContainer.addEventListener('click', event => {
+}
+const removeClikedTodos = event => {
   const clickedElement = event.target
 
   removeTodo(clickedElement)
-})
-inputSearchTodo.addEventListener('input', event => {
+}
+const manipulateTodosDisplay = event => {
   const inputValue = event.target.value.toLowerCase().trim()
   const todos = Array.from(todosContainer.children)
 
   hideTodos(todos, inputValue)
   showTodos(todos, inputValue)
-})
+}
+
+formAddTodo.addEventListener('submit', addNewTodos)
+todosContainer.addEventListener('click', removeClikedTodos)
+inputSearchTodo.addEventListener('input', manipulateTodosDisplay)
