@@ -2,68 +2,47 @@ const formAddTodo = document.querySelector('.form-add-todo')
 const inputSearchTodo = document.querySelector('.form-search input')
 const todosContainer = document.querySelector('.todos-container')
 
-const addTodo = inputValue => {
-  if (inputValue.length) {
-    todosContainer.innerHTML += `
+const addTodo = event => {
+  event.preventDefault()
+  const inputValue = event.target.add.value.trim()
+
+  if (!inputValue.length) {
+    return
+  }
+
+  todosContainer.innerHTML += `
     <li class="list-group-item d-flex justify-content-between align-items-center" data-todo="${inputValue}">
       <span>${inputValue}</span>
       <i class="far fa-trash-alt" data-trash="${inputValue}"></i>
     </li>
     `
 
-    event.target.reset()
-  }
+  event.target.reset()
 }
-const removeTodo = clickedElement => {
-  const trashDataValue = clickedElement.dataset.trash
-  const todo = document.querySelector(`[data-todo="${trashDataValue}"]`)
+const removeTodo = event => {
+  const trashWasClicked = event.target.dataset.trash
+  const todo = document.querySelector(`[data-todo="${trashWasClicked}"]`)
 
-  if (trashDataValue) {
-    todo.remove()
+  if (!trashWasClicked) {
+    return
   }
+
+  todo.remove()
 }
-const filterTodos = (todos, inputValue, returnMatchedTodos) => {
-  return todos
-    .filter(todo => {
-      const matchedTodos = todo.textContent.toLowerCase().includes(inputValue)
-      return returnMatchedTodos ? matchedTodos : !matchedTodos
-    })
-}
-const manipuLateTodoClasses = (todos, classToRemove, classToAdd) => {
-  todos.forEach(todo => {
-    todo.classList.remove(classToRemove)
-    todo.classList.add(classToAdd)
+const searchTodo = event => {
+  const inputValue = event.target.value.trim().toLowerCase()
+  const todos = Array.from(todosContainer.children).map(todo => ({
+    todo,
+    shouldBeVisible: todo.textContent.toLowerCase().includes(inputValue)
+  }))
+
+  todos.forEach(({ todo, shouldBeVisible }) => {
+    todo.classList.add(shouldBeVisible ? 'd-flex' : 'd-none')
+    todo.classList.remove(shouldBeVisible ? 'd-none' : 'd-flex')
   })
 }
-const hideTodos = (todos, inputValue) => {
-  const todoList = filterTodos(todos, inputValue, false)
 
-  manipuLateTodoClasses(todoList, 'd-flex', 'd-none')
-}
-const showTodos = (todos, inputValue) => {
-  const todoList = filterTodos(todos, inputValue, true)
+formAddTodo.addEventListener('submit', addTodo)
+todosContainer.addEventListener('click', removeTodo)
+inputSearchTodo.addEventListener('input', searchTodo)
 
-  manipuLateTodoClasses(todoList, 'd-none', 'd-flex')
-}
-const addNewTodos = event => {
-  event.preventDefault()
-  const inputValue = event.target.add.value.trim()
-
-  addTodo(inputValue)
-}
-const removeClikedTodos = event => {
-  const clickedElement = event.target
-
-  removeTodo(clickedElement)
-}
-const manipulateTodosDisplay = event => {
-  const inputValue = event.target.value.toLowerCase().trim()
-  const todos = Array.from(todosContainer.children)
-
-  hideTodos(todos, inputValue)
-  showTodos(todos, inputValue)
-}
-
-formAddTodo.addEventListener('submit', addNewTodos)
-todosContainer.addEventListener('click', removeClikedTodos)
-inputSearchTodo.addEventListener('input', manipulateTodosDisplay)
